@@ -66,6 +66,10 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddAuthorization();
+builder.Services.AddHttpClient("Default", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(120);
+});
 // Repositories and services
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(EfGenericRepository<>));
 builder.Services.AddScoped<CreateCouponUseCase>();

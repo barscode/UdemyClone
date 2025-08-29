@@ -24,12 +24,12 @@ public class CoursesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateCourse([FromBody] CreateCourseRequest req)
+    public async Task<IActionResult> CreateCourse([FromBody] CreateCourseRequest req, CancellationToken cancellationToken)
     {
-        var instructor = await _db.Users.FindAsync(req.InstructorId);
+        var instructor = await _db.Users.FindAsync(new object?[] { req.InstructorId }, cancellationToken);
         if (instructor is null || instructor.Rol != UserRoles.Instructor)
             return BadRequest("Geçersiz eğitmen.");
-        var kategori = await _db.Categories.FindAsync(req.CategoryId);
+        var kategori = await _db.Categories.FindAsync(new object?[] { req.CategoryId }, cancellationToken);
         if (kategori is null) return BadRequest("Geçersiz kategori.");
 
         var course = new Course
@@ -41,8 +41,8 @@ public class CoursesController : ControllerBase
             KategoriId = req.CategoryId,
             YayindaMi = req.Published
         };
-        _db.Courses.Add(course);
-        await _db.SaveChangesAsync();
+        await _db.Courses.AddAsync(course, cancellationToken);
+        await _db.SaveChangesAsync(cancellationToken);
         return Created($"/api/courses/{course.Id}", course);
     }
 
@@ -83,9 +83,9 @@ public class CoursesController : ControllerBase
     }
 
     [HttpPost("{id:int}/lessons")]
-    public async Task<IActionResult> AddLesson(int id, [FromBody] AddLessonRequest req)
+    public async Task<IActionResult> AddLesson(int id, [FromBody] AddLessonRequest req, CancellationToken cancellationToken)
     {
-        var course = await _db.Courses.FindAsync(id);
+        var course = await _db.Courses.FindAsync(new object?[] { id }, cancellationToken);
         if (course is null) return NotFound();
 
         var lesson = new Lesson
@@ -95,8 +95,8 @@ public class CoursesController : ControllerBase
             IcerikUrl = req.ContentUrl,
             SureSaniye = req.DurationSeconds
         };
-        _db.Lessons.Add(lesson);
-        await _db.SaveChangesAsync();
+        await _db.Lessons.AddAsync(lesson, cancellationToken);
+        await _db.SaveChangesAsync(cancellationToken);
         return Created($"/api/courses/{id}/lessons/{lesson.Id}", lesson);
     }
 

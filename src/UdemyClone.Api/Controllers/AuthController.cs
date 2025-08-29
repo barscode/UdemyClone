@@ -26,9 +26,9 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterRequest req)
+    public async Task<IActionResult> Register([FromBody] RegisterRequest req, CancellationToken cancellationToken)
     {
-        if (await _db.Users.AnyAsync(u => u.Email == req.Email))
+        if (await _db.Users.AnyAsync(u => u.Email == req.Email, cancellationToken))
             return BadRequest("Email zaten kayıtlı.");
 
         var user = new User
@@ -39,15 +39,15 @@ public class AuthController : ControllerBase
             SifreHash = BCrypt.Net.BCrypt.HashPassword(req.Password),
             Rol = string.IsNullOrWhiteSpace(req.Role) ? UserRoles.Student : req.Role!
         };
-        _db.Users.Add(user);
-        await _db.SaveChangesAsync();
+        await _db.Users.AddAsync(user, cancellationToken);
+        await _db.SaveChangesAsync(cancellationToken);
         return Created($"/api/users/{user.Id}", new { user.Id, user.Email, user.Rol });
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginRequest req)
+    public async Task<IActionResult> Login([FromBody] LoginRequest req, CancellationToken cancellationToken)
     {
-        var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == req.Email);
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == req.Email, cancellationToken);
         if (user is null || !BCrypt.Net.BCrypt.Verify(req.Password, user.SifreHash))
             return Unauthorized();
 
