@@ -77,22 +77,6 @@ builder.Services.AddScoped<ILessonCompletionService, LessonCompletionService>();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    using (var scope = app.Services.CreateScope())
-    {
-        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        db.Database.Migrate();
-        if (!db.Set<UdemyClone.Api.Domain.Kategori>().Any())
-        {
-            db.Set<UdemyClone.Api.Domain.Kategori>().AddRange(
-                new UdemyClone.Api.Domain.Kategori { Ad = "Development" },
-                new UdemyClone.Api.Domain.Kategori { Ad = "Business" },
-                new UdemyClone.Api.Domain.Kategori { Ad = "Design" }
-            );
-            db.SaveChanges();
-        }
-    }
 
     app.UseSwagger();
     app.UseSwaggerUI();

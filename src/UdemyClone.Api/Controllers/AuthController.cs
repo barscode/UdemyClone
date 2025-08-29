@@ -34,6 +34,8 @@ public class AuthController : ControllerBase
         var user = new User
         {
             Email = req.Email,
+             Ad=req.Name,
+             Soyad=req.LastName,
             SifreHash = BCrypt.Net.BCrypt.HashPassword(req.Password),
             Rol = string.IsNullOrWhiteSpace(req.Role) ? UserRoles.Student : req.Role!
         };
