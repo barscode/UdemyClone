@@ -78,8 +78,6 @@ builder.Services.AddScoped<ILessonCompletionService, LessonCompletionService>();
 var app = builder.Build();
 
 
-if (app.Environment.IsDevelopment())
-{
     app.UseSwagger();
     app.UseSwaggerUI();
 }
